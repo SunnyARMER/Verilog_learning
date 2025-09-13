@@ -4,9 +4,29 @@ Combinatinal Logic 組合邏輯-沒有時間關係連接什麼就輸出什麼
 1.不能當暫存器
 2.只能傳遞訊號
 3.需要搭配assign指令使用
+ex:
+assign out = in; //執行時機：輸入狀態改變就更新輸出
 
 reg 使用方式
 Sequential Logic 時序邏輯-有時間關係 ＋ Combinatinal Logic
 1.在組合邏輯時候當 邏輯閘
 2.在時序羅傑中當暫存器
+3.需要搭配always 指令使用
+ex:
+
+always @(*) begin //執行時機：在觸發條件變動時執行一次區塊內容 這裡用＊表示任意狀態變化就執行一次
+out = in;
+end
+
+//在Verilog 環境中
+//首先要加入標頭檔案 建立一個程式架構
+
+module top_module(input in , output out); 
+
+assign out = in;  //再來要加上wire怎麼做？ 使用assign 指令
+
+end module
+
+
+
 

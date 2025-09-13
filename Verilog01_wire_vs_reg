@@ -1,0 +1,12 @@
+wire 使用方式
+Combinatinal Logic 組合邏輯-沒有時間關係連接什麼就輸出什麼
+
+1.不能當暫存器
+2.只能傳遞訊號
+3.需要搭配assign指令使用
+
+reg 使用方式
+Sequential Logic 時序邏輯-有時間關係 ＋ Combinatinal Logic
+1.在組合邏輯時候當 邏輯閘
+2.在時序羅傑中當暫存器
+

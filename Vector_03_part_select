@@ -1,2 +1,21 @@
 如何將vector 分區塊劃分！？
-一個32-bit的vector 可以拆開成4bytes一組 相當於一個byte(8 bit)[31:24] + 第2組byte [23:16] + 第3組 [15:8] + 第4組 [7:0]
+一個32-bit的vector 可以拆開成4bytes  相當於一個byte(8 bit)一組 --> [31:24] + 第2組byte [23:16] + 第3組 [15:8] + 第4組 [7:0]
+
+例題：
+Build a circuit that will reverse the byte ordering of the 4-byte word.
+建立一個4byte 一組的反續電路
+AaaaaaaaBbbbbbbbCcccccccDddddddd => DdddddddCcccccccBbbbbbbbAaaaaaaa
+
+解題方式：
+題目要用4byte一組 
+將輸入與輸出都拆成4byte也就是 1 byte 一組, 再使用 assign 將 output 連接 input 的反相組合得解
+
+module top_module(
+    input [31:0] in,
+    output [31:0] out
+);
+    assign out[31:24] = in[7:0];    
+    assign out[23:16] = in[15:8];  
+    assign out[15:8]  = in[23:16];  
+    assign out[7:0]   = in[31:24];  
+endmodule

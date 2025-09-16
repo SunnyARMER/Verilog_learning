@@ -1,1 +1,32 @@
+Build a circuit that has two 3-bit inputs that computes the bitwise-OR of the two vectors, the logical-OR of the two vectors, and the inverse (NOT) of both vectors. 
+lace the inverse of b in the upper half of out_not (i.e., bits [5:3]), and the inverse of a in the lower half.
 
+建立兩個3-bit 的input 計算兩個vector 的 1.位元OR 2.邏輯OR 3.NOT資料b在前a在後
+
+1. 位元OR 表示兩input in_a[2:0] OR in_b[2:0] = out[2:0]
+就是 
+in_a[2] | in_b[2] = out[2]
+in_a[1] | in_b[1] = out[1]
+in_a[0] | in_b[0] = out[0]
+2. 邏輯  OR 表示 in_a[2] | in_a[1] | in_a[0] 後再跟 in_b[2] | in_b[1] | in_b[0] OR
+
+3. NOT 為 ～in_a[2]  ～in_a[1]  ～in_a[0] 後再跟 ～in_b[2] ～in_b[1] ～ in_b[0] OR
+
+module top_module (
+    input [2:0] a,
+    input [2:0] b,
+    output [2:0] out_or_bitwise,
+    output out_or_logical,
+    output [5:0] out_not
+);
+
+    // Bitwise OR operation
+    assign out_or_bitwise = a | b;
+
+    // Logical OR operation (true if any bit in a or b is 1)
+    assign out_or_logical = |a | |b;
+
+    // NOT operation: out_not[5:3] = ~b, out_not[2:0] = ~a
+    assign out_not = {~b, ~a};
+
+endmodule

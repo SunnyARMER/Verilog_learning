@@ -9,13 +9,24 @@ out_xor: output of a 4-input XOR gate.
 用4 bit的4 個input 創造 1. and gate 2. OR gate 3. XOR gate
 
 1. AND gate 
-assign out_AND[3:0] = {in_a[3] & in_a[2] & in_a[1] & in_a[0]}
+assign out_AND[3:0] = in_a[3] & in_a[2] & in_a[1] & in_a[0];
 
 2. OR gate 
 
-assign out_OR[3:0] = in_a[3] | in_a[2] | in_a[1] | in_a[0]
+assign out_OR[3:0] = in_a[3] | in_a[2] | in_a[1] | in_a[0];
 
 3. XOR gate
 
-assign out_XOR[3:0] = in_a[3] ^ in_a[2] ^ in_a[1] ^ in_a[0]}
+assign out_XOR[3:0] = in_a[3] ^ in_a[2] ^ in_a[1] ^ in_a[0];
 
+Ans:
+module top_module( 
+    input [3:0] in,
+    output out_and,
+    output out_or,
+    output out_xor
+);
+    assign out_and = in[3] & in[2] & in[1] & in[0];
+    assign out_or  = in[3] | in[2] | in[1] | in[0];
+    assign out_xor = in[3] ^ in[2] ^ in[1] ^ in[0];
+endmodule

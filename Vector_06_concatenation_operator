@@ -1,1 +1,10 @@
+"{}" concatenation operator 用法
+拿來結合分開的vector 使其合併
+
+EX:
+There are six 5-bit input vectors: a, b, c, d, e, and f, for a total of 30 bits of input. 
+There are four 8-bit output vectors: w, x, y, and z, for 32 bits of output. The output should be a concatenation of the input vectors followed by two 1 bits:
+
+有6個5-bit的input vectors a[4:0] b[4:0] c[4:0] d[4:0] e[4:0] f[4:0] 共30bit
+另外有4個8-bit的output vector w , x , y , z 
 

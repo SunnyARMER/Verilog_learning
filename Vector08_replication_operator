@@ -16,3 +16,13 @@ assign {out[7:0], out[15:8]} = in;    //前後8個位元一組兩組前後對調
 assign out[15:0] = {in[7:0], in[15:8]};   
 assign out = {in[7:0], in[15:8]};       
 
+EX:
+
+There are six 5-bit input vectors: a, b, c, d, e, and f, for a total of 30 bits of input. 
+There are four 8-bit output vectors: w, x, y, and z, for 32 bits of output. 
+The output should be a concatenation of the input vectors followed by two 1 bits:
+30位元input 由a-f 六個5 bit的向量組成
+32位元的output由 w-z 四個8 bit的向量組成
+
+output 必需合併
+

@@ -1,10 +1,13 @@
-Given five 1-bit signals (a, b, c, d, and e), compute all 25 pairwise one-bit comparisons in the 25-bit output vector.
+Given five 1-bit signals (a, b, c, d, and e), compute all 25 pairwise one-bit comparisons in the 25-bit output vector. 
 The output should be 1 if the two bits being compared are equal.
 
-As the diagram shows, this can be done more easily using the replication and concatenation operators.
+top: aaaaa bbbbb ccccc ddddd
+bottom abcde abcde abcde abcde abcde 
 
-The top vector is a concatenation of 5 repeats of each input
-The bottom vector is 5 repeats of a concatenation of the 5 inputs
+如何驗證top bottom 25 bit 每個是否都相等!?
+
+
+
 
 module top_module (
     input  a, b, c, d, e,  // 五個 1 位元輸入
@@ -19,3 +22,6 @@ module top_module (
     assign out = ~(top ^ bottom);                          // XNOR 運算：相等時為 1
 
 endmodule
+
+
+注意事項 5{a} // 只是表示a 變出5個 外面要加上{5{a}} 這5a才會合併

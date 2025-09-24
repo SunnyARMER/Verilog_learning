@@ -1,1 +1,21 @@
+如何在top_module (input a , input b , output out )裡面
+建立另一個模組將input a input b output 連接起來？
+
+1按位置：mod_a instance ( a, b, out ); // 建立一mod_a 名稱叫做 instance 並連接對應到top_module的(input a , input b , output out )
+2按名稱：mod_a instance ( .in1(a), .in2(b), .out(out) );//建立一mod_a 名稱叫做 instance 並連接top_module的(input a , input b , output out ) 到mod_a 的 in1 in2 out
+
+ans1:
+module top_module ( input a, input b, output out );
+
+     mod_a module_name (a,b,out);
+    
+endmodule
+
+ans2:
+module top_module ( input a, input b, output out );
+
+     mod_a module_name ( .in1(a), .in2(b), .out(out) );
+    
+endmodule
+
 

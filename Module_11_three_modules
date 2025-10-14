@@ -1,0 +1,57 @@
+You are given a module my_dff with two inputs and one output (that implements a D flip-flop).
+Instantiate three of them, then chain them together to make a shift register of length 3. The clk port needs to be connected to all instances.
+
+The module provided to you is: module my_dff ( input clk, input d, output q );
+
+Note that to make the internal connections, you will need to declare some wires. 
+Be careful about naming your wires and module instances: the names must be unique
+
+ANS:
+
+// 2. 設計 'top_module' (實作 3 位元移位暫存器)
+module top_module (
+    input clk,      // 時脈輸入 (Clock)
+    input d,        // 資料輸入 (Serial Data In)
+    output q        // 資料輸出 (Serial Data Out)
+);
+
+    // 宣告內部連線 (Wires)
+    // 我們需要兩個內部訊號線來連接三個 D-FF 的輸出到下一個 D-FF 的輸入。
+    // w_q1_to_d2: 連接 FF1 的 q 到 FF2 的 d
+    // w_q2_to_d3: 連接 FF2 的 q 到 FF3 的 d
+    wire w_q1_to_d2;
+    wire w_q2_to_d3;
+
+    
+    // 實例化 (Instantiation) 第一個 D Flip-Flop (FF1)
+    // 這是移位暫存器的第一個位元。
+    // 輸入 D 連接 top_module 的輸入 d
+    // 輸出 Q 連接到內部線 w_q1_to_d2
+    my_dff ff1 (
+        .clk(clk),            // 連接頂層時脈 clk
+        .d(d),                // 連接頂層輸入 d
+        .q(w_q1_to_d2)        // 輸出到內部線 w_q1_to_d2
+    );
+
+    // 實例化第二個 D Flip-Flop (FF2)
+    // 這是移位暫存器的第二個位元。
+    // 輸入 D 連接 w_q1_to_d2
+    // 輸出 Q 連接到內部線 w_q2_to_d3
+    my_dff ff2 (
+        .clk(clk),            // 連接頂層時脈 clk
+        .d(w_q1_to_d2),       // 連接上一個 D-FF 的輸出
+        .q(w_q2_to_d3)        // 輸出到內部線 w_q2_to_d3
+    );
+
+    // 實例化第三個 D Flip-Flop (FF3)
+    // 這是移位暫存器的最後一個位元。
+    // 輸入 D 連接 w_q2_to_d3
+    // 輸出 Q 連接到 top_module 的輸出 q
+    my_dff ff3 (
+        .clk(clk),            // 連接頂層時脈 clk
+        .d(w_q2_to_d3),       // 連接上一個 D-FF 的輸出
+        .q(q)                 // 連接頂層輸出 q
+    );
+
+endmodule // top_module
+

@@ -1,0 +1,72 @@
+This exercise is an extension of module_shift. 
+Instead of module ports being only single pins, we now have modules with vectors as ports, 
+to which you will attach wire vectors instead of plain wires. 
+Like everywhere else in Verilog, the vector length of the port does not have to match the wire connecting to it, 
+but this will cause zero-padding or trucation of the vector. 
+This exercise does not use connections with mismatched vector lengths.
+
+You are given a module my_dff8 with two inputs and one output (that implements a set of 8 D flip-flops). 
+Instantiate three of them, then chain them together to make a 8-bit wide shift register of length 3.
+In addition, create a 4-to-1 multiplexer (not provided) that chooses what to output depending on sel[1:0]: 
+The value at the input d, after the first, after the second, or after the third D flip-flop. 
+(Essentially, sel selects how many cycles to delay the input, from zero to three clock cycles.)
+
+The module provided to you is: module my_dff8 ( input clk, input [7:0] d, output [7:0] q );
+
+The multiplexer is not provided. One possible way to write one is inside an always block with a case statement inside. (See also: mux9to1v)
+
+ans:
+
+module top_module ( 
+    input clk, 
+    input [7:0] d, 
+    input [1:0] sel, 
+    output [7:0] q 
+);
+
+
+    // 內部 wire 用於連接 DFF 實例
+    wire [7:0] d_dff1; // 延遲 1 週期後的數據
+    wire [7:0] d_dff2; // 延遲 2 週期後的數據
+    wire [7:0] d_dff3; // 延遲 3 週期後的數據
+    
+    // 實現多工器的輸出暫存器 (作為組合邏輯的輸出)
+    reg [7:0] q_reg; 
+
+    // A. 實例化 my_dff8 模組 (DFF1: d -> d_dff1)
+    my_dff8 dff1_inst (
+        .clk (clk),
+        .d   (d),
+        .q   (d_dff1)
+    );
+
+    // B. 實例化 my_dff8 模組 (DFF2: d_dff1 -> d_dff2)
+    my_dff8 dff2_inst (
+        .clk (clk),
+        .d   (d_dff1),
+        .q   (d_dff2)
+    );
+
+    // C. 實例化 my_dff8 模組 (DFF3: d_dff2 -> d_dff3)
+    my_dff8 dff3_inst (
+        .clk (clk),
+        .d   (d_dff2),
+        .q   (d_dff3)
+    );
+
+    // D. 4對1 多工器 (選擇輸出)
+    // 根據 sel 的值，選擇輸出 q_reg
+    always @(*) begin
+        case (sel)
+            2'b00: q_reg = d;        // 選擇原始輸入 (延遲 0)
+            2'b01: q_reg = d_dff1;   // 選擇第一個 DFF 輸出 (延遲 1)
+            2'b10: q_reg = d_dff2;   // 選擇第二個 DFF 輸出 (延遲 2)
+            2'b11: q_reg = d_dff3;   // 選擇第三個 DFF 輸出 (延遲 3)
+            default: q_reg = 8'hXX;  // 預防綜合警告
+        endcase
+    end
+    
+    // E. 將多工器結果連接到輸出 q
+    assign q = q_reg;
+
+endmodule

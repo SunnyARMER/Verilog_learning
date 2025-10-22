@@ -1,0 +1,60 @@
+這是一個關於進位選擇加法器 (Carry-Select Adder) 的練習。概念解釋：漣波進位加法器 (Ripple Carry Adder) 的缺點是速度慢，因為每一級的進位 (carry-out) 必須等待前一級的進位 (carry-in) 計算出來才能開始。
+這使得整個運算的延遲很長。進位選擇加法器 (Carry-Select Adder)
+
+ans
+module top_module(
+    input [31:0] a,
+    input [31:0] b,
+    output [31:0] sum,
+    output cout // 整個32位元加法器的進位輸出
+);
+
+    // 內部連線宣告
+    // sel_c 是從低位 (add16_low) 產生的進位，作為高位多工器的選擇線
+    wire sel_c; 
+    
+    // 高位元的和 (sum) 和進位 (cout) 的暫存結果 (當 cin=0 和 cin=1 時)
+    wire [15:0] sum_high_0; // 高位假設 cin=0 時的和
+    wire [15:0] sum_high_1; // 高位假設 cin=1 時的和
+    wire cout_high_0;        // 高位假設 cin=0 時的進位輸出
+    wire cout_high_1;        // 高位假設 cin=1 時的進位輸出
+
+    // 1. 實例化第一個 add16 (計算低 16 位元)
+    // 低位的 cin 假設為 0
+    add16 add16_low (
+        .a   (a[15:0]),
+        .b   (b[15:0]),
+        .cin (1'b0),          // 假設 32 位元加法器的最低位 cin = 0
+        .sum (sum[15:0]),     // 直接輸出到 sum 的低 16 位元
+        .cout(sel_c)          // 輸出作為高位元的選擇訊號
+    );
+
+    // 2. 實例化第二個 add16 (計算高 16 位元，假設 cin=0)
+    add16 add16_high_0 (
+        .a   (a[31:16]),
+        .b   (b[31:16]),
+        .cin (1'b0),          // 假設 cin = 0
+        .sum (sum_high_0),    // 輸出和
+        .cout(cout_high_0)    // 輸出進位
+    );
+
+    // 3. 實例化第三個 add16 (計算高 16 位元，假設 cin=1)
+    add16 add16_high_1 (
+        .a   (a[31:16]),
+        .b   (b[31:16]),
+        .cin (1'b1),          // 假設 cin = 1
+        .sum (sum_high_1),    // 輸出和
+        .cout(cout_high_1)    // 輸出進位
+    );
+
+    // 4. 實作 16 位元 2-to-1 多工器 (Mux)
+    // 根據 sel_c 的值，從 sum_high_0 和 sum_high_1 中選出正確的高位和。
+    // 選擇邏輯: sum[31:16] = sel_c ? sum_high_1 : sum_high_0
+    assign sum[31:16] = sel_c ? sum_high_1 : sum_high_0;
+
+    // 5. 實作 1 位元 2-to-1 多工器 (Mux)
+    // 根據 sel_c 的值，從 cout_high_0 和 cout_high_1 中選出最終的進位輸出。
+    // 選擇邏輯: cout = sel_c ? cout_high_1 : cout_high_0
+    assign cout = sel_c ? cout_high_1 : cout_high_0;
+    
+endmodule

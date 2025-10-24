@@ -1,0 +1,58 @@
+An adder-subtractor can be built from an adder by optionally negating one of the inputs, which is equivalent to inverting the input then adding 
+1. The net result is a circuit that can do two operations: (a + b + 0) and (a + ~b + 1). 
+See Wikipedia if you want a more detailed explanation of how this circuit works.
+
+Build the adder-subtractor below.
+
+You are provided with a 16-bit adder module, which you need to instantiate twice:
+
+module add16 ( input[15:0] a, input[15:0] b, input cin, output[15:0] sum, output cout );
+
+Use a 32-bit wide XOR gate to invert the b input whenever sub is 1. 
+(This can also be viewed as b[31:0] XORed with sub replicated 32 times. See replication operator.). 
+Also connect the sub input to the carry-in of the adder.
+
+ans:
+
+module top_module(
+ endmodule[31:0] a,
+    input [31:0] b,
+    input sub,            // 控制訊號: sub=0 for A+B, sub=1 for A-B (A + ~B + 1)
+    output [31:0] sum,
+    output cout           // 32位元加法器的最終進位輸出 (對於減法通常是溢位指示)
+);
+    // 內部連線宣告
+    // 1. b_modified: 經過 sub 控制後的 B 輸入
+    // b_modified = b ⊕ sub (sub 複製 32 次)
+    wire [31:0] b_modified; 
+    // 2. carry_low: 低 16 位元加法器的進位輸出
+    wire carry_low;
+    // ----------------------------------------------------
+    // 步驟 1: 實作 32 位元 XOR 閘來控制 B 的取反
+    // {32{sub}} 是 Verilog 的複製 (Replication) 運算符
+    // 這將 'sub' 訊號複製 32 次，與 b[31:0] 進行逐位 XOR
+    assign b_modified = b ^ {32{sub}}; 
+    // ----------------------------------------------------
+    // 步驟 2 & 3: 實例化兩個 add16 模塊，組成 32 位元加法器
+    
+    // 模塊實例化 1: 低 16 位元 (Bits 0 到 15)
+    // cin 接收 sub 訊號，用於實現 A + ~B + 1 中的 "+1"
+    add16 add16_low (
+        .a   (a[15:0]),
+        .b   (b_modified[15:0]),
+        .cin (sub),             // sub 訊號直接作為最低位元的 cin
+        .sum (sum[15:0]),       // 輸出到 sum 的低 16 位元
+        .cout(carry_low)        // 輸出到高 16 位元加法器的 cin
+    );
+
+    // 模塊實例化 2: 高 16 位元 (Bits 16 到 31)
+    // cin 接收來自低 16 位元加法器的 cout
+    add16 add16_high (
+        .a   (a[31:16]),
+        .b   (b_modified[31:16]),
+        .cin (carry_low),       // 低 16 位元的 cout 作為高 16 位元的 cin
+        .sum (sum[31:16]),      // 輸出到 sum 的高 16 位元
+        .cout(cout)             // 輸出作為整個 32 位元加法器的最終 cout
+    );
+
+endmodule

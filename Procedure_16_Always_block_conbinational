@@ -21,7 +21,7 @@ always @(*) out2 = a & b | c ^ d;
 
 ANS:
 module top_module(
- endmoduleaout_alwaysblock
+ 
     output wire out_assign,
     output reg out_alwaysblock
 );

@@ -1,0 +1,13 @@
+module top_module (
+    input [7:0] a, b, c, d,
+    output [7:0] min);//
+    
+    assign min = (a[7:0] < b & a[7:0] < c & a[7:0] < d ) ? a:
+        (b[7:0] < a & b[7:0] < c & b[7:0] < d)? b:
+        (c[7:0] < a & c[7:0] < b & c[7:0] < d)? c:  
+        (d[7:0] < a & d[7:0] < b & d[7:0] < c)? d:0;
+    
+
+    // assign intermediate_result1 = compare? true: false;
+
+endmodule

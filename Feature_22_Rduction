@@ -1,0 +1,8 @@
+module top_module (
+    input [7:0] in,
+    output parity
+);
+    // 縮減 XOR (^) 運算子對整個 'in' 向量進行 XOR，結果即為偶數同位元
+    assign parity = ^in; 
+
+endmodule

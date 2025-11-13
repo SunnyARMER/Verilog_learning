@@ -1,0 +1,32 @@
+module top_module( 
+    input [399:0] a, b,
+    input cin,
+    output cout,
+    output [399:0] sum );
+    
+    wire [99:0] temp_out;
+    
+    generate
+        genvar i;
+        for(i=0; i<100; i++) begin: my_bcd_adder
+            if(i==0)
+                bcd_fadd bcd_inst(
+                    .a(a[3:0]),
+                    .b(b[3:0]),
+                    .cin(cin),
+                    .cout(temp_out[0]),
+                    .sum(sum[3:0])
+            	);
+            else
+                bcd_fadd bcd_inst(
+                    .a(a[4*i+3:4*i]),
+                    .b(b[4*i+3:4*i]),
+                    .cin(temp_out[i-1]),
+                    .cout(temp_out[i]),
+                    .sum(sum[4*i+3:4*i])
+            	); 
+        end
+    endgenerate
+		assign cout = temp_out[99];
+    
+endmodule

@@ -1,0 +1,45 @@
+module top_module (
+    input x,
+    input y,
+    output z
+);
+
+    // 定義連接子模組輸出和邏輯閘之間的「電線」(wires)
+    wire out_ia1, out_ib1, out_ia2, out_ib2;
+    wire or_result, and_result;
+
+    // 1. 實例化子模組 (Instantiation)
+    // 語法格式: 模組名 實例名 (.子模組端口(連接訊號), ...);
+
+    // 上半部
+    mt2015_q4a IA1 ( .x(x), .y(y), .z(out_ia1) ); // 使用題目提到的 A 模組
+    mt2015_q4b IB1 ( .x(x), .y(y), .z(out_ib1) ); // 使用題目提到的 B 模組
+
+    // 下半部
+    mt2015_q4a IA2 ( .x(x), .y(y), .z(out_ia2) );
+    mt2015_q4b IB2 ( .x(x), .y(y), .z(out_ib2) );
+
+    // 2. 邏輯閘運算
+    // 上半部的 OR 運算
+    assign or_result = out_ia1 | out_ib1;
+
+    // 下半部的 AND 運算
+    assign and_result = out_ia2 & out_ib2;
+
+    // 最終的 XOR 運算輸出到 z
+    assign z = or_result ^ and_result;
+
+    
+endmodule
+
+
+    // 這是必須在另一個地方定義的內容
+module mt2015_q4a ( input x, input y, output z );
+    assign z = (x^y) & x;
+
+endmodule
+
+module mt2015_q4b ( input x, input y, output z );
+    assign z = ~(x^y);
+endmodule
+

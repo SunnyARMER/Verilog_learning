@@ -1,0 +1,29 @@
+module top_module (
+    input ring,
+    input vibrate_mode,
+    output reg ringer,      // 組合邏輯在 always @(*) 區塊內賦值，必須宣告為 reg
+    output reg motor        // 必須宣告為 reg
+);
+
+    // always @(*)：確保當任何輸入 (ring 或 vibrate_mode) 改變時，電路都會重新計算輸出。
+    always @(*) begin
+        // 使用阻塞賦值 '=' 描述組合邏輯
+
+        if (ring == 1) begin  // 有來電
+            if (vibrate_mode == 1) begin  // 振動模式
+                motor = 1;
+                ringer = 0; 
+            end
+            else begin // 非振動模式 (vibrate_mode == 0)
+                motor = 0;
+                ringer = 1;
+            end
+        end
+        else begin // ring == 0 (沒有來電)
+            // 處理所有輸出的賦值，避免鎖存器
+            motor = 0;
+            ringer = 0;
+        end
+    end
+    
+endmodule

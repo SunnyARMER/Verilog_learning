@@ -1,0 +1,42 @@
+module top_module(
+    input [99:0] in,
+    output [98:0] out_both,
+    output [99:1] out_any,
+    output [99:0] out_different 
+);
+
+    // 1. out_both: 
+    //    out_both[i] = in[i+1] AND in[i]
+    //    範圍是 [98:0]。這是一個典型的位移 (shifting) AND 操作。
+    assign out_both = in[99:1] & in[98:0];
+
+
+    // 2. out_any: 
+    //    out_any[i] = in[i] OR in[i-1]
+    //    範圍是 [99:1]。這是一個典型的位移 (shifting) OR 操作。
+    assign out_any  = in[99:1] | in[98:0];
+    
+    
+    // 3. out_different: 
+    //    out_different[i] = in[i] XOR (in[i]的左鄰居)
+    //    範圍是 [99:0]，包含環繞條件。
+    
+    // 宣告一個內部線路 (wire) 來處理 in[99] 的鄰居 in[0]
+    // 環繞向量：in[99]的左鄰居是in[0]，in[98]的左鄰居是in[99], ..., in[0]的左鄰居是in[1]
+    // 因此，in_shifted_left 代表了每個 in[i] 的左鄰居
+    // in_shifted_left[99] = in[0] (環繞)
+    // in_shifted_left[98] = in[99]
+    // in_shifted_left[1] = in[2]
+    // in_shifted_left[0] = in[1]
+    wire [99:0] in_shifted_left;
+    
+    // 處理環繞：in[99] 的左鄰居是 in[0]
+    assign in_shifted_left[99] = in[0];
+    
+    // 處理其餘 99 個位元：in[i] 的左鄰居是 in[i+1]
+    assign in_shifted_left[98:0] = in[99:1];
+    
+    // 最終邏輯：in[i] XOR (in[i]的左鄰居)
+    assign out_different = in ^ in_shifted_left;
+
+endmodule

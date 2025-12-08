@@ -1,0 +1,11 @@
+module top_module(
+    input a, b,
+    output cout, sum );
+    
+    // Sum = a XOR b (異或)
+    assign sum = a ^ b;
+    
+    // Cout = a AND b (與)
+    assign cout = a & b;
+
+endmodule

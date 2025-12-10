@@ -1,0 +1,62 @@
+// 頂層模組 (3 位元加法器)
+module top_module(
+    input [2:0] a, b,
+    input cin,
+    output [2:0] cout,
+    output [2:0] sum 
+);
+
+    // 內部訊號宣告：用於連接全加器之間的進位 (Carry-Out/Carry-In)
+    // 這裡我們不需要額外宣告，因為題目要求將進位直接連接到輸出 cout[2:0]
+    // cout[0] 是 FA0 的輸出進位，它同時作為 FA1 的輸入進位。
+    // cout[1] 是 FA1 的輸出進位，它同時作為 FA2 的輸入進位。
+    // cout[2] 是 FA2 的輸出進位，也是最終進位。
+
+    // -------------------------------------------------------------------
+    // 實例化全加器 0 (最低位元 - Least Significant Bit)
+    // Inputs: a[0], b[0], 外部輸入 cin
+    // Outputs: sum[0], cout[0]
+    full_adder FA0 (
+        .A   (a[0]), 
+        .B   (b[0]), 
+        .Cin (cin),        // 外部輸入 cin 作為第一個 FA 的 Cin
+        .Sum (sum[0]), 
+        .Cout(cout[0])     // FA0 的 Cout 連接到 cout[0]
+    );
+
+    // -------------------------------------------------------------------
+    // 實例化全加器 1 (中間位元)
+    // Inputs: a[1], b[1], FA0 的輸出進位 cout[0]
+    // Outputs: sum[1], cout[1]
+    full_adder FA1 (
+        .A   (a[1]), 
+        .B   (b[1]), 
+        .Cin (cout[0]),    // FA0 的 Cout (cout[0]) 作為 FA1 的 Cin
+        .Sum (sum[1]), 
+        .Cout(cout[1])     // FA1 的 Cout 連接到 cout[1]
+    );
+
+    // -------------------------------------------------------------------
+    // 實例化全加器 2 (最高位元 - Most Significant Bit)
+    // Inputs: a[2], b[2], FA1 的輸出進位 cout[1]
+    // Outputs: sum[2], cout[2]
+    full_adder FA2 (
+        .A   (a[2]), 
+        .B   (b[2]), 
+        .Cin (cout[1]),    // FA1 的 Cout (cout[1]) 作為 FA2 的 Cin
+        .Sum (sum[2]), 
+        .Cout(cout[2])     // FA2 的 Cout 連接到 cout[2] (最終 Cout)
+    );
+
+endmodule
+
+
+// 注意：如果您的編譯環境不允許在同一個檔案內定義多個模組，
+// 您需要將 full_adder 放在另一個檔案 (例如 full_adder.v) 中。
+module full_adder(
+    input A, B, Cin,
+    output Sum, Cout
+);
+    assign Sum = A ^ B ^ Cin;
+    assign Cout = (A & B) | (Cin & (A ^ B));
+endmodule

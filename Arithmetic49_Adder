@@ -1,0 +1,72 @@
+// 模組名稱: full_adder (FA)
+// 描述: 實現單一位元的二進制加法
+module full_adder (
+    input a,        // 第一個數字輸入位
+    input b,        // 第二個數字輸入位
+    input cin,      // 進位輸入
+    output sum,     // 和 (Sum)
+    output cout     // 進位輸出
+);
+
+    // 和的計算：sum = a XOR b XOR cin
+    assign sum = a ^ b ^ cin;
+
+    // 進位輸出的計算：cout = (a AND b) OR (cin AND (a XOR b))
+    // 或簡寫為：cout = (a & b) | (a & cin) | (b & cin)
+    assign cout = (a & b) | (a & cin) | (b & cin);
+
+endmodule
+
+// 模組名稱: top_module
+// 描述: 4 位元漣波進位加法器
+module top_module (
+    input [3:0] x,   // 第一個 4 位元輸入 (x[3] 是最高位)
+    input [3:0] y,   // 第二個 4 位元輸入
+    output [4:0] sum // 5 位元輸出 (sum[4] 是最高位/溢出位)
+);
+
+    // 內部訊號：用於傳遞全加器之間的進位
+    // c[0] 是最右邊 FA 的進位輸入 (應為 0)
+    // c[1] 是 FA0 的輸出進位，也是 FA1 的輸入進位
+    // c[2] 是 FA1 的輸出進位，也是 FA2 的輸入進位
+    // c[3] 是 FA2 的輸出進位，也是 FA3 的輸入進位
+    wire [3:1] c; 
+
+    // 處理最低位 (位元 0) 的全加器
+    // 輸入 cin 預設為 0
+    full_adder FA0 (
+        .a(x[0]),
+        .b(y[0]),
+        .cin(1'b0),     // 最低位元的進位輸入為 0
+        .sum(sum[0]),
+        .cout(c[1])     // 進位輸出連接到下一個進位線 c[1]
+    );
+
+    // 處理位元 1 的全加器
+    full_adder FA1 (
+        .a(x[1]),
+        .b(y[1]),
+        .cin(c[1]),     // 進位輸入來自 FA0 的輸出
+        .sum(sum[1]),
+        .cout(c[2])     // 進位輸出連接到下一個進位線 c[2]
+    );
+    
+    // 處理位元 2 的全加器
+    full_adder FA2 (
+        .a(x[2]),
+        .b(y[2]),
+        .cin(c[2]),     // 進位輸入來自 FA1 的輸出
+        .sum(sum[2]),
+        .cout(c[3])     // 進位輸出連接到下一個進位線 c[3]
+    );
+
+    // 處理最高位 (位元 3) 的全加器
+    full_adder FA3 (
+        .a(x[3]),
+        .b(y[3]),
+        .cin(c[3]),     // 進位輸入來自 FA2 的輸出
+        .sum(sum[3]),
+        .cout(sum[4])   // 最終進位輸出即為 sum[4]
+    );
+
+endmodule

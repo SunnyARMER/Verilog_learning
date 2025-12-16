@@ -1,0 +1,50 @@
+module top_module (
+    input [15:0] a,
+    input [15:0] b,
+    input        cin,
+    output       cout,
+    output [15:0] sum
+);
+
+    // 宣告內部連線，用於傳遞進位 (Carry Signals)
+    // 總共有 3 個內部進位：c[0] (D0->D1), c[1] (D1->D2), c[2] (D2->D3)
+    wire c [2:0]; 
+
+    // 實例化 BCD 加法器
+    // D0: 最低位 (Low-order digit)
+    bcd_fadd u0 (
+        .a   (a[3:0]), 
+        .b   (b[3:0]),
+        .cin (cin),      // 外部 cin
+        .cout(c[0]),     // 輸出進位到 c[0]
+        .sum (sum[3:0])
+    );
+
+    // D1: 第二位
+    bcd_fadd u1 (
+        .a   (a[7:4]), 
+        .b   (b[7:4]),
+        .cin (c[0]),     // 輸入進位來自 c[0]
+        .cout(c[1]),     // 輸出進位到 c[1]
+        .sum (sum[7:4])
+    );
+    
+    // D2: 第三位
+    bcd_fadd u2 (
+        .a   (a[11:8]), 
+        .b   (b[11:8]),
+        .cin (c[1]),     // 輸入進位來自 c[1]
+        .cout(c[2]),     // 輸出進位到 c[2]
+        .sum (sum[11:8])
+    );
+    
+    // D3: 最高位 (High-order digit)
+    bcd_fadd u3 (
+        .a   (a[15:12]), 
+        .b   (b[15:12]),
+        .cin (c[2]),     // 輸入進位來自 c[2]
+        .cout(cout),     // 輸出進位到最終的 cout
+        .sum (sum[15:12])
+    );
+
+endmodule

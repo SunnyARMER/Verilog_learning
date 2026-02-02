@@ -1,0 +1,30 @@
+module top_module (
+    input clk,
+    input resetn,
+    input [1:0] byteena,
+    input [15:0] d,
+    output reg [15:0] q  // 修正 1: 必須宣告為 reg
+);
+
+    always @(posedge clk) begin
+        if (!resetn) begin
+            // 優先級最高：同步重置
+            q <= 16'b0;
+        end
+        else begin
+            // 修正 2: 只有在沒重置時，才處理寫入邏輯
+            if (byteena[1]) begin
+                q[15:8] <= d[15:8];
+            end
+            
+            if (byteena[0]) begin
+                q[7:0] <= d[7:0];
+            end
+        end
+    end
+
+endmodule
+
+
+
+

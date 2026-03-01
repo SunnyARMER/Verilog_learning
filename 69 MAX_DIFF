@@ -1,0 +1,19 @@
+module top_module (
+    input clk,
+    input w, R, E, L,
+    output reg Q
+);
+
+    // 定義一個變數來存放 MUX 選擇後的結果
+    wire d_in;
+
+    // 實作多工器邏輯
+    // 優先判斷 L，再判斷 E
+    assign d_in = L ? R : (E ? w : Q);
+
+    // 時序邏輯：在時鐘正緣觸發時更新 Q
+    always @(posedge clk) begin
+        Q <= d_in;
+    end
+
+endmodule

@@ -1,0 +1,21 @@
+module top_module (
+    input clk,
+    input x,
+    output z
+); 
+
+    // 定義三個正反器的狀態儲存
+    reg q1, q2, q3;
+
+    // 時序邏輯：在時鐘上升沿更新狀態
+    always @(posedge clk) begin
+        // 注意：這裡應使用非阻塞賦值 (<=)
+        q1 <= x ^ q1;
+        q2 <= x & ~q2;
+        q3 <= x | ~q3;
+    end
+
+    // 組合邏輯：計算輸出 z
+    assign z = ~(q1 | q2 | q3);
+
+endmodule

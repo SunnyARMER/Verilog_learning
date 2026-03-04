@@ -1,0 +1,17 @@
+module top_module (
+    input clk,
+    input [7:0] in,
+    output [7:0] pedge
+);
+
+    reg [7:0] in_last; // 用來儲存上一個週期的輸入值
+
+    always @(posedge clk) begin
+        // 1. 先計算輸出：目前的 in 為 1 且 上一次的 in 為 0
+        pedge <= in & ~in_last;
+        
+        // 2. 更新「過去的狀態」，供下一個週期使用
+        in_last <= in;
+    end
+
+endmodule

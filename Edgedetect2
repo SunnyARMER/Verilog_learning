@@ -1,0 +1,18 @@
+module top_module (
+    input clk,
+    input [7:0] in,
+    output reg [7:0] anyedge  // 注意這裡要宣告為 reg
+);
+
+    reg [7:0] last_in;
+
+    always @(posedge clk) begin
+        // 第一步：先算出這一個週期的變化，並存入 anyedge
+        // 因為這是非阻塞賦值 (<=)，它會在下一個時鐘正緣才生效
+        anyedge <= in ^ last_in;
+
+        // 第二步：更新 last_in，供下一個週期使用
+        last_in <= in;
+    end
+
+endmodule

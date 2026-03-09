@@ -1,0 +1,26 @@
+module top_module (
+    input clk,
+    input reset,
+    input [31:0] in,
+    output [31:0] out
+);
+
+    reg [31:0] last_in;
+
+    always @(posedge clk) begin
+        // 1. 紀錄這一次的輸入，供下一個週期比對
+        last_in <= in;
+
+        if (reset) begin
+            // 2. 同步重置：優先權最高
+            out <= 32'b0;
+        end
+        else begin
+            // 3. 捕捉邏輯：
+            // last_in & ~in 找出哪些位元發生了 1 -> 0
+            // 用 | (OR) 運算確保一旦變為 1 就會持續保持
+            out <= out | (last_in & ~in);
+        end
+    end
+
+endmodule

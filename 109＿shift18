@@ -1,0 +1,26 @@
+module top_module(
+    input clk,
+    input load,
+    input ena,
+    input [1:0] amount,
+    input [63:0] data,
+    output reg [63:0] q);
+
+    always @(posedge clk) begin
+        if (load) begin
+            // 當 load 為高電位，直接載入資料
+            q <= data;
+        end
+        else if (ena) begin
+            // 當 ena 為高電位，根據 amount 決定移位方式
+            case (amount)
+                2'b00: q <= {q[62:0], 1'b0};        // 左移 1 bit
+                2'b01: q <= {q[55:0], 8'b0};        // 左移 8 bits
+                2'b10: q <= {q[63], q[63:1]};       // 算術右移 1 bit (補符號位 q[63])
+                2'b11: q <= {{8{q[63]}}, q[63:8]};  // 算術右移 8 bits (補 8 個 q[63])
+            endcase
+        end
+        // 如果 load 和 ena 都是 0，q 會自動保持原值（由 register 特性決定）
+    end
+
+endmodule

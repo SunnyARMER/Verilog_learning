@@ -1,0 +1,21 @@
+module top_module(
+    input clk,
+    input reset,    // 同步高電位重設
+    output reg [4:0] q
+);
+
+    always @(posedge clk) begin
+        if (reset) begin
+            q <= 5'h1; // 重設為 1
+        end
+        else begin
+            // 根據圖示的位元位移與 XOR 邏輯
+            q[4] <= q[0];            // 位置 5 (0 ^ q[0])
+            q[3] <= q[4];            // 位置 4
+            q[2] <= q[3] ^ q[0];     // 位置 3 (有抽頭)
+            q[1] <= q[2];            // 位置 2
+            q[0] <= q[1];            // 位置 1
+        end
+    end
+
+endmodule

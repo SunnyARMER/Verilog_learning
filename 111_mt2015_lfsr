@@ -1,0 +1,24 @@
+module top_module (
+    input [2:0] SW,      // 改回 3 bits (r2, r1, r0)
+    input [1:0] KEY,     // 改回 2 bits (KEY[0]=clk, KEY[1]=L)
+    output [2:0] LEDR    // 改回 3 bits (Q2, Q1, Q0)
+);
+
+    reg [2:0] q;
+
+    // 這裡維持不變，邏輯是一樣的
+    always @(posedge KEY[0]) begin
+        if (KEY[1]) begin
+            q <= SW;     // 當 L=1, Load SW 的值
+        end
+        else begin
+            // 當 L=0, 執行移位與 XOR
+            q[0] <= q[2];
+            q[1] <= q[0];
+            q[2] <= q[1] ^ q[2];
+        end
+    end
+
+    assign LEDR = q;
+
+endmodule

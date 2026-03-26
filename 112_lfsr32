@@ -1,0 +1,28 @@
+module top_module(
+    input clk,
+    input reset,    // Active-high synchronous reset to 32'h1
+    output reg [31:0] q
+);
+
+    always @(posedge clk) begin
+        if (reset) begin
+            // 題目要求重置為 1
+            q <= 32'h1;
+        end
+        else begin
+            // Galois LFSR 運算邏輯
+            // 基本規則：q[n] <= q[n+1]
+            // 有 Tap 的地方：q[n] <= q[n+1] ^ q[0]
+            
+            q[31] <= 1'b0 ^ q[0];            // 位元 32 是回饋源
+            q[30:22] <= q[31:23];
+            
+            q[21] <= q[22] ^ q[0];           // 位元 22 是 Tap
+            q[20:2]  <= q[21:3];
+            
+            q[1]  <= q[2] ^ q[0];            // 位元 2 是 Tap
+            q[0]  <= q[1] ^ q[0];            // 位元 1 是 Tap
+        end
+    end
+
+endmodule

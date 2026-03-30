@@ -1,0 +1,24 @@
+module top_module (
+    input clk,
+    input resetn,    // synchronous reset (active low)
+    input in,
+    output out
+);
+
+    // 宣告 4 個 D FF 的輸出
+    reg [3:0] q;     // q[3] 是最左邊（第一級），q[0] 是最右邊（out）
+
+    always @(posedge clk) begin
+        if (!resetn) begin
+            q <= 4'b0000;    // 同步重置為 0
+        end
+        else begin
+            // 右移：in -> q[3] -> q[2] -> q[1] -> q[0]
+            q <= {in, q[3:1]};
+        end
+    end
+
+    // 輸出接最後一個 bit
+    assign out = q[0];
+
+endmodule

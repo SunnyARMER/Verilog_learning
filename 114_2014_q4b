@@ -1,0 +1,45 @@
+// ====================== MUXDFF 子模組（q4a） ======================
+// （如果你之前用我給的版本，這段已經正確，不用改）
+module MUXDFF (
+    input clk,
+    input w, R, E, L,
+    output reg Q
+);
+
+    always @(posedge clk) begin
+        if (L)
+            Q <= R;           // 優先載入並行資料
+        else if (E)
+            Q <= w;           // 右移：把前一級的 Q 送進來
+        else
+            Q <= Q;           // 保持不變
+    end
+
+endmodule
+
+
+// ====================== 頂層模組 top_module ======================
+module top_module (
+    input [3:0] SW,      // R[3:0]
+    input [3:0] KEY,     // KEY[0]=clk, KEY[1]=E, KEY[2]=L, KEY[3]=w
+    output [3:0] LEDR
+);
+
+    wire E = KEY[1];
+    wire L = KEY[2];
+    wire w = KEY[3];     // serial input
+
+    wire [3:0] R = SW;   // 並行載入資料
+
+    // 內部 Q 連線（Q[3] 是 MSB，Q[0] 是 LSB）
+    wire [3:0] Q;
+
+    // 正確連接：右移，所以 w 從 MSB (Q[3]) 進來
+    MUXDFF M3 (.clk(KEY[0]), .w(w),       .R(R[3]), .E(E), .L(L), .Q(Q[3]));  // MSB
+    MUXDFF M2 (.clk(KEY[0]), .w(Q[3]),    .R(R[2]), .E(E), .L(L), .Q(Q[2]));
+    MUXDFF M1 (.clk(KEY[0]), .w(Q[2]),    .R(R[1]), .E(E), .L(L), .Q(Q[1]));
+    MUXDFF M0 (.clk(KEY[0]), .w(Q[1]),    .R(R[0]), .E(E), .L(L), .Q(Q[0]));  // LSB
+
+    assign LEDR = Q;     // 輸出到紅燈
+
+endmodule

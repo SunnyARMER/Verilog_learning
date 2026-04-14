@@ -1,0 +1,20 @@
+module top_module (
+    input clk,
+    input enable,
+    input S,
+    input A, B, C,
+    output Z
+);
+
+    reg [7:0] Q;     // 這就是我們的 8-bit 移位暫存器
+
+    // === 移位暫存器部分 ===
+    always @(posedge clk) begin
+        if (enable)
+            Q <= {Q[6:0], S};   // S 塞進 Q[0]，其他往左移
+    end
+
+    // === 多工器部分 ===
+    assign Z = Q[{A, B, C}];    // 把 A B C 當成地址，直接選 Q 裡面對應的 bit
+
+endmodule

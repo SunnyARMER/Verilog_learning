@@ -1,0 +1,17 @@
+module top_module (
+    input clk, load,
+    input [511:0] data,
+    output reg [511:0] q
+);
+
+    wire [511:0] next_q;
+
+    assign next_q[0]   = q[1];                    // 左邊界
+    assign next_q[511] = q[510];                  // 右邊界
+    assign next_q[510:1] = q[509:0] ^ q[511:2];  // 中間全部一起 XOR
+
+    always @(posedge clk) begin
+        q <= load ? data : next_q;
+    end
+
+endmodule

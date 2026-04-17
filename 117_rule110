@@ -1,0 +1,36 @@
+module top_module(
+    input clk,
+    input load,
+    input [511:0] data,
+    output [511:0] q
+);
+
+    integer i;
+    always @(posedge clk) begin
+        if (load) begin
+            q <= data;
+        end else begin
+            for (i = 0; i < 512; i = i + 1) begin
+                // 定義 L, C, R
+                // 注意邊界：如果 i=0，右邊補 0；如果 i=511，左邊補 0
+                reg L, C, R;
+                L = (i == 511) ? 1'b0 : q[i+1];
+                C = q[i];
+                R = (i == 0) ? 1'b0 : q[i-1];
+
+                // 根據 Rule 110 表格寫邏輯
+                // 這裡示範用 case，最清楚直觀
+                case ({L, C, R})
+                    3'b111: q[i] <= 1'b0;
+                    3'b110: q[i] <= 1'b1;
+                    3'b101: q[i] <= 1'b1;
+                    3'b100: q[i] <= 1'b0;
+                    3'b011: q[i] <= 1'b1;
+                    3'b010: q[i] <= 1'b1;
+                    3'b001: q[i] <= 1'b1;
+                    3'b000: q[i] <= 1'b0;
+                endcase
+            end
+        end
+    end
+endmodule

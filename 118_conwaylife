@@ -1,0 +1,41 @@
+module top_module (
+    input clk,
+    input load,
+    input [255:0] data,
+    output reg [255:0] q
+);
+
+    integer x, y, i, j;
+    reg [3:0] count;
+    reg [255:0] q_next;
+
+    // 組合邏輯：計算下一刻所有細胞的狀態
+    always @(*) begin
+        for (y = 0; y < 16; y = y + 1) begin
+            for (x = 0; x < 16; x = x + 1) begin
+                
+                // 1. 定義鄰居座標 (處理環面捲動)
+                // 使用 (y + 15) % 16 是另一種處理邊界的小技巧
+                count = q[((y+15)%16)*16 + (x+15)%16] + q[((y+15)%16)*16 + x] + q[((y+15)%16)*16 + (x+1)%16] +
+                        q[y*16 + (x+15)%16]                                   + q[y*16 + (x+1)%16] +
+                        q[((y+1)%16)*16 + (x+15)%16]  + q[((y+1)%16)*16 + x]  + q[((y+1)%16)*16 + (x+1)%16];
+
+                // 2. 根據鄰居數決定下一狀態
+                case (count)
+                    4'd2: q_next[y*16 + x] = q[y*16 + x]; // 2個鄰居：保持不變
+                    4'd3: q_next[y*16 + x] = 1'b1;        // 3個鄰居：生存
+                    default: q_next[y*16 + x] = 1'b0;    // 0,1,4+個鄰居：死亡
+                endcase
+            end
+        end
+    end
+
+    // 時序邏輯：更新暫存器
+    always @(posedge clk) begin
+        if (load)
+            q <= data;
+        else
+            q <= q_next;
+    end
+
+endmodule

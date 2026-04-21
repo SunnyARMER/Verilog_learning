@@ -1,0 +1,34 @@
+module top_module(
+    input clk,
+    input areset,    // 非同步重置
+    input in,
+    output out
+); 
+
+    // 1. 定義狀態名稱 (使用參數增加可讀性)
+    parameter A = 1'b0, B = 1'b1;
+    reg state, next_state;
+
+    // 2. 狀態轉移邏輯 (組合邏輯 - Next State Logic)
+    always @(*) begin
+        case (state)
+            B: next_state = (in == 1'b0) ? A : B;
+            A: next_state = (in == 1'b0) ? B : A;
+            default: next_state = B;
+        endcase
+    end
+
+    // 3. 狀態暫存器 (序向邏輯 - State Register)
+    // 注意：非同步重置必須將 areset 放在敏感列表中
+    always @(posedge clk or posedge areset) begin
+        if (areset) begin
+            state <= B; // 題目要求重置到 B
+        end else begin
+            state <= next_state;
+        end
+    end
+
+    // 4. 輸出邏輯 (Moore FSM：輸出僅取決於當前狀態)
+    assign out = (state == B);
+
+endmodule

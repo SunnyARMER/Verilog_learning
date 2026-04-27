@@ -1,0 +1,34 @@
+module top_module(
+    input clk,
+    input reset,    // 同步重設
+    input j,
+    input k,
+    output out); 
+
+    // 1. 宣告狀態
+    parameter OFF=0, ON=1; 
+    reg state, next_state;
+
+    // 2. 組合邏輯：決定下一個狀態 (Next-state logic)
+    always @(*) begin
+        case (state)
+            OFF: next_state = j ? ON : OFF;
+            ON:  next_state = k ? OFF : ON;
+            default: next_state = OFF;
+        endcase
+    end
+
+    // 3. 時序邏輯：更新目前狀態 (State register)
+    // 注意：同步重設不放進 posedge reset
+    always @(posedge clk) begin
+        if (reset) begin
+            state <= OFF;
+        end else begin
+            state <= next_state;
+        end
+    end
+
+    // 4. 輸出邏輯 (Output logic)
+    assign out = (state == ON);
+
+endmodule

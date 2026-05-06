@@ -1,0 +1,52 @@
+module top_module (
+    input clk,
+    input reset,
+    input [3:1] s,
+    output reg fr3,
+    output reg fr2,
+    output reg fr1,
+    output reg dfr
+); 
+
+    localparam STATE_A      = 3'd0;
+    localparam STATE_B_UP   = 3'd1;
+    localparam STATE_B_DOWN = 3'd2;
+    localparam STATE_C_UP   = 3'd3;
+    localparam STATE_C_DOWN = 3'd4;
+    localparam STATE_D      = 3'd5;
+
+    reg [2:0] current_state, next_state;
+
+    // 第一段：時序邏輯
+    always @(posedge clk) begin
+        if (reset) current_state <= STATE_A;
+        else       current_state <= next_state;
+    end
+
+    // 第二段：狀態轉移邏輯
+    always @(*) begin
+        case (current_state)
+            STATE_A:      next_state = (s[1]) ? STATE_B_UP : STATE_A;
+            STATE_B_UP:   next_state = (s[2]) ? STATE_C_UP : (!s[1] ? STATE_A : STATE_B_UP);
+            STATE_B_DOWN: next_state = (!s[1]) ? STATE_A : (s[2] ? STATE_C_UP : STATE_B_DOWN);
+            STATE_C_UP:   next_state = (s[3]) ? STATE_D : (!s[2] ? STATE_B_DOWN : STATE_C_UP);
+            STATE_C_DOWN: next_state = (s[3]) ? STATE_D : (!s[2] ? STATE_B_DOWN : STATE_C_DOWN);
+            STATE_D:      next_state = (!s[3]) ? STATE_C_DOWN : STATE_D;
+            default:      next_state = STATE_A;
+        endcase
+    end
+    
+    // 第三段：輸出邏輯 (修正重點！)
+    always @(*) begin
+        case (current_state)
+            // 修改這裡：在最低水位 A 時，dfr 也要開啟 (1)
+            STATE_A:      {fr1, fr2, fr3, dfr} = 4'b1111; 
+            STATE_B_UP:   {fr1, fr2, fr3, dfr} = 4'b1100; 
+            STATE_B_DOWN: {fr1, fr2, fr3, dfr} = 4'b1101; 
+            STATE_C_UP:   {fr1, fr2, fr3, dfr} = 4'b1000; 
+            STATE_C_DOWN: {fr1, fr2, fr3, dfr} = 4'b1001; 
+            STATE_D:      {fr1, fr2, fr3, dfr} = 4'b0000; 
+            default:      {fr1, fr2, fr3, dfr} = 4'b0000;
+        endcase
+    end
+endmodule

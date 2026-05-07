@@ -1,0 +1,42 @@
+module top_module(
+    input clk,
+    input areset,    // 非同步高電位重置
+    input bump_left,
+    input bump_right,
+    output walk_left,
+    output walk_right); 
+
+    // 1. 定義狀態名稱
+    parameter LEFT = 1'b0, RIGHT = 1'b1;
+    reg state, next_state;
+
+    // 2. 狀態轉換邏輯 (組合電路)
+    always @(*) begin
+        case (state)
+            LEFT: begin
+                // 如果在往左走時撞到左邊，就切換到右邊
+                if (bump_left) next_state = RIGHT;
+                else           next_state = LEFT;
+            end
+            RIGHT: begin
+                // 如果在往右走時撞到右邊，就切換到左邊
+                if (bump_right) next_state = LEFT;
+                else            next_state = RIGHT;
+            end
+        endcase
+    end
+
+    // 3. 狀態暫存器更新 (順序電路)
+    always @(posedge clk or posedge areset) begin
+        if (areset) begin
+            state <= LEFT; // 重置時預設向左
+        end else begin
+            state <= next_state;
+        end
+    end
+
+    // 4. 輸出邏輯 (Moore 狀態機，輸出只取決於當前狀態)
+    assign walk_left  = (state == LEFT);
+    assign walk_right = (state == RIGHT);
+
+endmodule

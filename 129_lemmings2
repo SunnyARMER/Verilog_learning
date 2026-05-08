@@ -1,0 +1,69 @@
+module top_module(
+    input clk,
+    input areset,    // 非同步重設，重設後旅鼠向左走
+    input bump_left,
+    input bump_right,
+    input ground,
+    output walk_left,
+    output walk_right,
+    output aaah );
+
+    // 1. 定義狀態：必須區分「向左掉落」與「向右掉落」
+    parameter LEFT=0, RIGHT=1, FALL_L=2, FALL_R=3;
+    reg [1:0] state, next_state;
+
+    // 2. 狀態轉換邏輯 (組合邏輯)
+    always @(*) begin
+        case (state)
+            LEFT: begin
+                // 優先權：掉落 > 撞牆
+                if (!ground) 
+                    next_state = FALL_L;
+                else if (bump_left) 
+                    next_state = RIGHT;
+                else 
+                    next_state = LEFT;
+            end
+            
+            RIGHT: begin
+                if (!ground) 
+                    next_state = FALL_R;
+                else if (bump_right) 
+                    next_state = LEFT;
+                else 
+                    next_state = RIGHT;
+            end
+            
+            FALL_L: begin
+                // 掉落時無視碰撞，直到 ground=1 恢復原方向
+                if (ground) 
+                    next_state = LEFT;
+                else 
+                    next_state = FALL_L;
+            end
+            
+            FALL_R: begin
+                if (ground) 
+                    next_state = RIGHT;
+                else 
+                    next_state = FALL_R;
+            end
+            
+            default: next_state = LEFT;
+        endcase
+    end
+
+    // 3. 狀態更新 (時序邏輯)
+    always @(posedge clk or posedge areset) begin
+        if (areset) 
+            state <= LEFT; // 重設時向左走
+        else 
+            state <= next_state;
+    end
+
+    // 4. 輸出邏輯
+    assign walk_left  = (state == LEFT); 
+    assign walk_right = (state == RIGHT);
+    assign aaah       = (state == FALL_L || state == FALL_R);
+
+endmodule

@@ -1,0 +1,50 @@
+module top_module(
+    input clk,
+    input areset,    // 非同步重置
+    input bump_left,
+    input bump_right,
+    input ground,
+    output walk_left,
+    output walk_right,
+    output aaah );
+
+    // 定義狀態編碼
+    parameter LEFT=0, RIGHT=1, FALL_L=2, FALL_R=3;
+    reg [1:0] state, next_state;
+
+    // 狀態轉移邏輯 (組合邏輯)
+    always @(*) begin
+        case(state)
+            LEFT: begin
+                if (!ground) next_state = FALL_L;
+                else if (bump_left) next_state = RIGHT;
+                else next_state = LEFT;
+            end
+            RIGHT: begin
+                if (!ground) next_state = FALL_R;
+                else if (bump_right) next_state = LEFT;
+                else next_state = RIGHT;
+            end
+            FALL_L: begin
+                if (ground) next_state = LEFT;
+                else next_state = FALL_L;
+            end
+            FALL_R: begin
+                if (ground) next_state = RIGHT;
+                else next_state = FALL_R;
+            end
+        endcase
+    end
+
+    // 狀態更新 (時序邏輯)
+    always @(posedge clk or posedge areset) begin
+        if (areset) state <= LEFT; // 題目通常預設向左走
+        else state <= next_state;
+    end
+
+    // 輸出邏輯
+    assign walk_left  = (state == LEFT);
+    assign walk_right = (state == RIGHT);
+    assign aaah       = (state == FALL_L || state == FALL_R);
+
+endmodule

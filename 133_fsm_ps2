@@ -1,0 +1,38 @@
+module top_module(
+    input clk,
+    input [7:0] in,
+    input reset,
+    output done
+);
+
+    // 定義狀態
+    parameter STATE_BYTE1 = 2'b00,
+              STATE_BYTE2 = 2'b01,
+              STATE_BYTE3 = 2'b10,
+              STATE_DONE  = 2'b11;
+
+    reg [1:0] current_state, next_state;
+
+    // 狀態轉移 (Sequential)
+    always @(posedge clk) begin
+        if (reset)
+            current_state <= STATE_BYTE1;
+        else
+            current_state <= next_state;
+    end
+
+    // 下一個狀態邏輯 (Combinational)
+    always @(*) begin
+        case (current_state)
+            STATE_BYTE1: next_state = in[3] ? STATE_BYTE2 : STATE_BYTE1;
+            STATE_BYTE2: next_state = STATE_BYTE3;
+            STATE_BYTE3: next_state = STATE_DONE;
+            STATE_DONE:  next_state = in[3] ? STATE_BYTE2 : STATE_BYTE1;
+            default:     next_state = STATE_BYTE1;
+        endcase
+    end
+
+    // 輸出邏輯
+    assign done = (current_state == STATE_DONE);
+
+endmodule

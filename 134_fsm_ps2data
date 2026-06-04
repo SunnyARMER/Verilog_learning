@@ -1,0 +1,45 @@
+module top_module (
+    input clk,
+    input [7:0] in,
+    input reset,
+    output [23:0] out_bytes,
+    output done
+);
+
+    // 定義狀態
+    parameter IDLE = 2'b00, BYTE2 = 2'b01, BYTE3 = 2'b10, DONE = 2'b11;
+    reg [1:0] state, next_state;
+    reg [23:0] shift_reg;
+
+    // 狀態機：負責識別封包結構
+    always @(posedge clk) begin
+        if (reset) state <= IDLE;
+        else state <= next_state;
+    end
+
+    always @(*) begin
+        case (state)
+            IDLE:  next_state = (in[3]) ? BYTE2 : IDLE; // 必須在 in[3]==1 時才開始
+            BYTE2: next_state = BYTE3;
+            BYTE3: next_state = DONE;
+            DONE:  next_state = (in[3]) ? BYTE2 : IDLE; // 處理下一個封包的銜接
+            default: next_state = IDLE;
+        endcase
+    end
+
+    // 資料路徑：只有在接收過程正確時才移位存入數據
+    always @(posedge clk) begin
+        if (reset) begin
+            shift_reg <= 24'b0;
+        end else begin
+            // 只有在進入下一狀態時才更新數據
+            // 注意：在 IDLE 狀態下偵測到 in[3] 時，同時存入第一個 byte
+            shift_reg <= {shift_reg[15:0], in};
+        end
+    end
+
+    // 輸出控制
+    assign done = (state == DONE);
+    assign out_bytes = shift_reg;
+
+endmodule

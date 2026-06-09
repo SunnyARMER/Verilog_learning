@@ -1,0 +1,64 @@
+module top_module(
+ input clk,
+    input in,
+    input reset,    // Synchronous reset
+    output [7:0] out_byte,
+    output done
+);
+     parameter idle = 0,start = 1,data1 = 2,data2 = 3,data3 = 4,data4 = 5,
+    	data5 = 6,data6 = 7,data7 = 8,data8 = 9,stop = 10,error = 11, check = 12;
+    reg [3:0] state,next_state;
+    reg [7:0] out_temp;
+    wire st,odd;
+    reg check_1;
+
+    always @ (*)
+        begin
+	        st = 0;
+	        case (state)
+                idle:begin
+                    next_state = (~in)?start:idle;
+                	st=1; end
+                start: next_state = data1;
+                data1: next_state = data2;              
+                data2: next_state = data3;               
+                data3: next_state = data4;               
+                data4: next_state = data5;               
+                data5: next_state = data6;              
+                data6: next_state = data7;               
+                data7: next_state = data8;                
+                data8: next_state = check;               
+                check: next_state = (in)?stop:error;                   
+                stop: begin
+                    next_state = (in)?idle:start;
+					st=1; end
+                error: next_state = (in)?idle:error;
+	            default next_state = idle;
+	        endcase
+        end
+	always @(posedge clk)
+        if(reset)
+            state <= idle;
+    	else state <= next_state;
+    always @ (posedge clk)
+	 case (state)
+       start:out_temp[0] = in;
+       data1:out_temp[1] = in;
+       data2:out_temp[2] = in;
+       data3:out_temp[3] = in;
+	   data4:out_temp[4] = in;
+       data5:out_temp[5] = in;
+       data6:out_temp[6] = in;
+       data7:out_temp[7] = in;
+       default out_temp = out_temp;
+	endcase
+   parity  U1 ( .clk(clk), .reset(reset | st), .in(in), .odd(odd)); 
+   always @(posedge clk)
+        if(reset)
+            check_1 <= 0;
+        else
+            check_1 <= odd;
+    assign done = (state == stop) & check_1;
+    assign out_byte = out_temp;
+
+endmodule

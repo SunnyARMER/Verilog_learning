@@ -1,0 +1,44 @@
+module top_module(
+    input clk,
+    input reset,    // Synchronous reset
+    input in,
+    output disc,
+    output flag,
+    output err);
+    reg[9:0]state;
+    wire[9:0]next_state;
+    parameter NONE=10'd0000_0000_01;
+    parameter ONE=10'd0000_0000_10;
+    parameter TWO=10'd0000_0001_00;
+    parameter THREE=10'd0000_0010_00;
+    parameter FOUR=10'd0000_0100_00;
+    parameter FIVE=10'd0000_1000_00;
+    parameter SIX=10'd0001_0000_00;
+    parameter ERROR=10'd0010_0000_00;
+    parameter DISCARD=10'd0100_0000_00;
+    parameter FLAG=10'd1000_0000_00;
+    
+    always@(posedge clk)
+    begin
+        if(reset)
+            state <= NONE;
+        else
+            state <= next_state;
+    end
+    
+    assign next_state[0]=~in&&(state[4:0]||state[9:7]);
+    assign next_state[1]=in&&(state[0]||state[9:8]);
+    assign next_state[2]=in&&state[1];
+    assign next_state[3]=in&&state[2];
+    assign next_state[4]=in&&state[3];
+    assign next_state[5]=in&&state[4];
+    assign next_state[6]=in&&state[5];
+    assign next_state[7]=in&&state[7:6];
+    assign next_state[8]=~in&&state[5];
+    assign next_state[9]=~in&&state[6];
+    
+    assign err=state[7];
+    assign disc=state[8];    
+    assign flag=state[9]; 
+
+endmodule

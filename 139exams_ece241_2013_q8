@@ -1,0 +1,32 @@
+module top_module (
+    input clk,
+    input aresetn, // 非同步低電位重置
+    input x,
+    output z
+);
+    // 定義狀態
+    parameter S0 = 2'b00, S1 = 2'b01, S2 = 2'b10;
+    reg [1:0] state, next_state;
+
+    // 狀態轉移 (Sequential)
+    always @(posedge clk or negedge aresetn) begin
+        if (!aresetn)
+            state <= S0;
+        else
+            state <= next_state;
+    end
+
+    // 下一狀態邏輯 (Combinational)
+    always @(*) begin
+        case (state)
+            S0: next_state = (x) ? S1 : S0;
+            S1: next_state = (x) ? S1 : S2;
+            S2: next_state = (x) ? S1 : S0;
+            default: next_state = S0;
+        endcase
+    end
+
+    // 輸出邏輯 (Mealy 機：輸出取決於 state 和 x)
+    assign z = (state == S2 && x == 1'b1);
+
+endmodule

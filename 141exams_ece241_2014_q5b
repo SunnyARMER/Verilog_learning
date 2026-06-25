@@ -1,0 +1,26 @@
+module top_module(
+    input clk,
+    input areset,
+    input x,
+    output z
+);
+    // 使用獨熱編碼：A=2'b01, B=2'b10
+    reg [1:0] state;
+
+    // 狀態更新
+    always @(posedge clk or posedge areset) begin
+        if (areset)
+            state <= 2'b01; // 初始狀態 A
+        else begin
+            case (state)
+                2'b01: state <= x ? 2'b10 : 2'b01;
+                2'b10: state <= 2'b10;
+                default: state <= 2'b01;
+            endcase
+        end
+    end
+
+    // 輸出邏輯
+    assign z = (state[0] & x) | (state[1] & ~x);
+
+endmodule
